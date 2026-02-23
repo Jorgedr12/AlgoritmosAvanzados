@@ -31,7 +31,8 @@ ax2.set_title('Pétalos')
 ax2.set_xlabel('Largo del Pétalo')
 ax2.set_ylabel('Ancho del Pétalo')
 
-# Mostramos ambas gráficas
+# Guardamos la gráfica de comparación
+plt.savefig('comparacion_sepalos_petalos.png')
 plt.show()
 
 # PASO 2: Selección de Representación
@@ -79,6 +80,9 @@ plt.title(f'Resultados K-Means (Solo Pétalos) - Accuracy: {acc:.0%}')
 plt.xlabel('Largo del Pétalo')
 plt.ylabel('Ancho del Pétalo')
 plt.legend()
+
+# Guardamos la gráfica final
+plt.savefig('resultado_kmeans_iris.png')
 plt.show()
 
 # Hacemos un Excel con los resultados

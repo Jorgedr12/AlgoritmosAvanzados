@@ -1,3 +1,7 @@
+"""
+Authors: Duarte Ruiz Jorge Luis, Estrada Neri Daniel Ivan
+"""
+
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt

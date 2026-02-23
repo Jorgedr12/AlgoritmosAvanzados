@@ -1,4 +1,5 @@
 import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.metrics import classification_report, accuracy_score
@@ -12,27 +13,20 @@ y = iris.data.targets
 df = X.copy()
 df['class'] = y['class']
 
+# Definimos un diccionario de colores para las clases
+colores_dict = {'Iris-setosa': 'purple', 'Iris-versicolor': 'teal', 'Iris-virginica': 'gold'}
+
 # PASO 1: Analizamos los datos (Sépalos vs Pétalos)
 print("Generando gráfica de comparación")
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-colores_map = {'Iris-setosa': 'purple', 'Iris-versicolor': 'teal', 'Iris-virginica': 'gold'}
-colores_reales = df['class'].map(colores_map)
+sns.set_style("whitegrid")
+g = sns.pairplot(df, hue='class', palette=colores_dict, markers=["o", "s", "D"])
 
-# Gráfica 1: Sépalos
-ax1.scatter(df['sepal length'], df['sepal width'], c=colores_reales, alpha=0.6)
-ax1.set_title('Sépalos')
-ax1.set_xlabel('Largo del Sépalo')
-ax1.set_ylabel('Ancho del Sépalo')
+# Ajustamos el título superior
+g.fig.suptitle("Distribución Cruzada: Sépalos vs Pétalos", y=1.02)
 
-# Gráfica 2: Pétalos
-ax2.scatter(df['petal length'], df['petal width'], c=colores_reales, alpha=0.6)
-ax2.set_title('Pétalos')
-ax2.set_xlabel('Largo del Pétalo')
-ax2.set_ylabel('Ancho del Pétalo')
-
-# Guardamos la gráfica de comparación
-plt.savefig('comparacion_sepalos_petalos.png')
+# Guardamos la gráfica
+plt.savefig('distribucion_total_iris.png')
 plt.show()
 
 # PASO 2: Selección de Representación
@@ -60,29 +54,41 @@ acc = accuracy_score(df['class'], df['prediccion'])
 print(f"Exactitud del modelo K-Means: {acc:.2f}")
 print(classification_report(df['class'], df['prediccion']))
 
-# PASO 6: Grafica final
-print("Generando gráfica final con clusters")
-plt.figure(figsize=(8, 6))
+# PASO 6: Gráfica final
+print("Generando comparativa: Ground Truth vs Clusters")
 
-especies = df['prediccion'].unique()
-colors_list = ['purple', 'teal', 'gold']
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
 
-for i, especie in enumerate(especies):
-    subset = df[df['prediccion'] == especie]
-    plt.scatter(subset['petal length'], subset['petal width'], 
-                c=colors_list[i], label=especie, s=50, alpha=0.7)
 
+# Creamos la subgráfica 1 con las etiquetas reales
+especies_reales = df['class'].unique()
+for i, especie in enumerate(especies_reales):
+    subset = df[df['class'] == especie]
+    ax1.scatter(subset['petal length'], subset['petal width'], 
+                c=colores_dict[especie], label=especie, s=50, alpha=0.7)
+ax1.set_title('Ground Truth (Etiquetas Reales)')
+ax1.set_xlabel('Largo del Pétalo')
+ax1.set_ylabel('Ancho del Pétalo')
+ax1.legend()
+
+# Creamos la subgráfica 2 con las predicciones del modelo K-Means
+especies_pred = df['prediccion'].unique()
+for i, cluster in enumerate(especies_pred):
+    subset = df[df['prediccion'] == cluster]
+    ax2.scatter(subset['petal length'], subset['petal width'], 
+                c=colores_dict[cluster], label=f'Cluster {cluster}', s=50, alpha=0.7)
+
+# Añadimos los centroides en la gráfica de predicción
 centros = kmeans.cluster_centers_
-plt.scatter(centros[:, 0], centros[:, 1], 
-            c='red', marker='X', s=100, label='Centroides')
+ax2.scatter(centros[:, 0], centros[:, 1], 
+            c='red', marker='x', s=150, label='Centroides')
 
-plt.title(f'Resultados K-Means (Solo Pétalos) - Accuracy: {acc:.0%}')
-plt.xlabel('Largo del Pétalo')
-plt.ylabel('Ancho del Pétalo')
-plt.legend()
+ax2.set_title(f'Resultados K-Means - Accuracy: {acc:.0%}')
+ax2.set_xlabel('Largo del Pétalo')
+ax2.legend()
 
-# Guardamos la gráfica final
-plt.savefig('resultado_kmeans_iris.png')
+plt.tight_layout()
+plt.savefig('comparativa_final_iris.png')
 plt.show()
 
 # Hacemos un Excel con los resultados
